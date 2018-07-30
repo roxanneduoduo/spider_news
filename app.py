@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import sqlite3
 import os.path
+# import pdb
 
 
 
@@ -46,17 +47,13 @@ def get_news_content(response) -> str:
 				res.raise_for_status()
 				res.encoding = 'utf-8'
 				soup = BeautifulSoup(res.text, 'html.parser')
-				if soup.find('li.expand-all.active'):
-					remainder_all_url = redirect_url + '&page=0'
-					res = requests.get(remainder_all_url)
-					res.raise_for_status()
-					res.encoding = 'utf-8'
-					soup = BeautifulSoup(res.text, 'html.parser')
 				content_p = soup.select('div.article-txt > p')
 				break
 	else:
-		if soup.find('div.module-page > a.last'):
-			remainder_all_url = response.url.strip('.shtml') + '_s.shtml'
+		# pdb.set_trace()
+		if soup.select('div.module-page > a.last') != []:
+			remainder_all_url = response.url.split('.shtml')[0] + '_s.shtml'
+			# print(remainder_all_url)
 			res = requests.get(remainder_all_url)
 			res.raise_for_status()
 			res.encoding = 'utf-8'
@@ -112,4 +109,3 @@ if __name__ == '__main__':
 		content = get_news_content(rv)
 		write_news_db(conn=db, date_time=date_time, title=news['title'], content=content, url=news['url'])
 	close_db(db)
-
